@@ -1,26 +1,33 @@
 import { Box } from "@material-ui/core";
-import React from "react";
+import React, { useState } from "react";
 import { DrawerToggle } from "./components/DrawerToggle/DrawerToggle";
 import { PomodoroProgress } from "./components/Pomodoro/PomodoroProgress";
 import { ThemeChange } from "./components/ThemeChange";
 import { Timer } from "./components/Timer/Timer";
-import { CYCLE_TYPES, usePomodoro } from "./hooks/usePomodoro";
+import {
+  CYCLE_TYPES,
+  usePomodoro,
+  pomodoroSettings,
+} from "./hooks/usePomodoro";
 import ThemeIcon from "@material-ui/icons/FormatPaintRounded";
 import SettingsIcon from "@material-ui/icons/SettingsRounded";
 import { PomodoroSettings } from "./components/Pomodoro/PomodoroSettings";
 
 function App() {
+  const [pomSettings, setPomSettings] = useState<pomodoroSettings>({
+    workLengthInMinutes: 25,
+    breakLengthInMinutes: 5,
+    longBreakLengthInMinutes: 15,
+    cyclesBeforeLongBreak: 4,
+    longBreaksEnabled: true,
+  });
+
   const {
     cycleCount,
     currentCycleType,
     currentCycleLength,
     finishCycle,
-  } = usePomodoro({
-    workLengthInMinutes: 0.2,
-    breakLengthInMinutes: 0.1,
-    longBreakLengthInMinutes: 0.5,
-    cyclesBeforeLongBreak: 4,
-  });
+  } = usePomodoro(pomSettings);
 
   let title = "Work";
   if (currentCycleType === CYCLE_TYPES.LONG_BREAK) title = "Long Break";
@@ -40,10 +47,12 @@ function App() {
           timerFinishCallback={finishCycle}
           title={title}
         />
-        <PomodoroProgress
-          currentSessionNumber={cycleCount}
-          sessionsBeforeLongBreak={4}
-        />
+        {pomSettings.longBreaksEnabled && (
+          <PomodoroProgress
+            currentSessionNumber={cycleCount}
+            sessionsBeforeLongBreak={pomSettings.cyclesBeforeLongBreak}
+          />
+        )}
       </Box>
       <Box p={4} display={"flex"} justifyContent={"space-between"}>
         <DrawerToggle
@@ -54,7 +63,12 @@ function App() {
         <DrawerToggle
           title={"Pomodoro Settings"}
           icon={<SettingsIcon />}
-          drawerContent={<PomodoroSettings />}
+          drawerContent={
+            <PomodoroSettings
+              pomodoroSettings={pomSettings}
+              setPomodoroSettings={setPomSettings}
+            />
+          }
         />
       </Box>
     </Box>

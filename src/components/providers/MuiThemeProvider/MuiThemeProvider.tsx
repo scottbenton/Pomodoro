@@ -13,9 +13,8 @@ export const MuiThemeProvider: React.FC = (props) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
 
   const [currentMode, setCurrentMode] = useState<THEME_TYPES>(
-    window.localStorage.getItem("mode") ?? prefersDarkMode
-      ? THEME_TYPES.DARK
-      : THEME_TYPES.LIGHT
+    (window.localStorage.getItem("mode") as THEME_TYPES) ??
+      (prefersDarkMode ? THEME_TYPES.DARK : THEME_TYPES.LIGHT)
   );
   const [currentColor, setCurrentColor] = useState<THEME_COLORS>(
     (window.localStorage.getItem("color") as THEME_COLORS) ?? THEME_COLORS.ROSE

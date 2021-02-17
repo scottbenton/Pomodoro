@@ -1,10 +1,11 @@
-import { useCallback, useReducer } from "react";
+import { useCallback, useEffect, useReducer } from "react";
 
 export interface pomodoroSettings {
   workLengthInMinutes: number;
   breakLengthInMinutes: number;
   longBreakLengthInMinutes: number;
   cyclesBeforeLongBreak: number;
+  longBreaksEnabled: boolean;
 }
 
 export enum CYCLE_TYPES {
@@ -21,6 +22,7 @@ interface CycleState {
 
 enum CYCLE_ACTIONS {
   NEXT_CYCLE,
+  UPDATE_VALUES,
 }
 
 export function usePomodoro(settings: pomodoroSettings) {
@@ -29,6 +31,7 @@ export function usePomodoro(settings: pomodoroSettings) {
     breakLengthInMinutes,
     longBreakLengthInMinutes,
     cyclesBeforeLongBreak,
+    longBreaksEnabled,
   } = settings;
 
   const reducer = (prevState: CycleState, action: CYCLE_ACTIONS) => {
@@ -40,6 +43,7 @@ export function usePomodoro(settings: pomodoroSettings) {
         switch (currentCycleType) {
           case CYCLE_TYPES.WORK:
             const isLongBreakNext =
+              longBreaksEnabled &&
               currentCycleCount % cyclesBeforeLongBreak === 0;
             newState.currentCycleType = isLongBreakNext
               ? CYCLE_TYPES.LONG_BREAK
@@ -55,6 +59,18 @@ export function usePomodoro(settings: pomodoroSettings) {
             newState.currentCycleLength = workLengthInMinutes;
         }
         break;
+      case CYCLE_ACTIONS.UPDATE_VALUES:
+        switch (currentCycleType) {
+          case CYCLE_TYPES.WORK:
+            newState.currentCycleLength = workLengthInMinutes;
+            break;
+          case CYCLE_TYPES.BREAK:
+            newState.currentCycleLength = breakLengthInMinutes;
+            break;
+          case CYCLE_TYPES.LONG_BREAK:
+            newState.currentCycleLength = longBreakLengthInMinutes;
+            break;
+        }
     }
 
     return newState;
@@ -69,6 +85,10 @@ export function usePomodoro(settings: pomodoroSettings) {
   const finishCycle = useCallback(() => {
     dispatch(CYCLE_ACTIONS.NEXT_CYCLE);
   }, []);
+
+  useEffect(() => {
+    dispatch(CYCLE_ACTIONS.UPDATE_VALUES);
+  }, [settings]);
 
   return {
     finishCycle,
