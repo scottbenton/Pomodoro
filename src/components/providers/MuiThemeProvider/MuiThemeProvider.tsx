@@ -20,8 +20,6 @@ export const MuiThemeProvider: React.FC = (props) => {
     (window.localStorage.getItem("color") as THEME_COLORS) ?? THEME_COLORS.ROSE
   );
 
-  console.debug(currentMode, currentColor);
-
   const theme = createMuiTheme({
     typography: {
       fontFamily: ["nunito", "Arial", "sans-serif"].join(","),

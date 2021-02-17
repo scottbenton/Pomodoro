@@ -1,4 +1,10 @@
-import { Box, Drawer, IconButton, Typography } from "@material-ui/core";
+import {
+  Box,
+  Drawer,
+  IconButton,
+  Typography,
+  Container,
+} from "@material-ui/core";
 import React, { useState } from "react";
 import CloseIcon from "@material-ui/icons/CloseRounded";
 
@@ -21,19 +27,21 @@ export const DrawerToggle: React.FC<DrawerToggleProps> = (props) => {
         open={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
       >
-        <Box padding={4}>
-          <Box
-            display={"flex"}
-            justifyContent={"space-between"}
-            alignItems={"center"}
-          >
-            <Typography variant={"h5"}>{title}</Typography>
-            <IconButton onClick={() => setIsDrawerOpen(false)}>
-              <CloseIcon />
-            </IconButton>
+        <Container maxWidth={"md"}>
+          <Box padding={3}>
+            <Box
+              display={"flex"}
+              justifyContent={"space-between"}
+              alignItems={"center"}
+            >
+              <Typography variant={"h5"}>{title}</Typography>
+              <IconButton onClick={() => setIsDrawerOpen(false)}>
+                <CloseIcon />
+              </IconButton>
+            </Box>
+            {drawerContent}
           </Box>
-          {drawerContent}
-        </Box>
+        </Container>
       </Drawer>
     </>
   );
