@@ -49,6 +49,7 @@ export const colors: IColors = {
 export enum THEME_TYPES {
   LIGHT = "light",
   DARK = "dark",
+  BLACK = "black",
 }
 
 interface IThemeColors {
@@ -71,6 +72,12 @@ export const themeColors: IThemeColors = {
     name: "Dark",
     type: "dark",
     backgroundColor: "#111827",
+    paperColor: "#1F2937",
+  },
+  [THEME_TYPES.BLACK]: {
+    name: "Black",
+    type: "dark",
+    backgroundColor: "#000",
     paperColor: "#1F2937",
   },
 };
