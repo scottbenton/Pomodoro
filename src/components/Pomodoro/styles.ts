@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import { fade, makeStyles } from "@material-ui/core";
 
 export const useStyles = makeStyles((theme) => ({
   dot: {
@@ -11,7 +11,7 @@ export const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.primary.main,
   },
   dotUnfilled: {
-    backgroundColor: theme.palette.grey[500],
+    backgroundColor: fade(theme.palette.grey[500], 0.25),
   },
   container: {
     display: "flex",

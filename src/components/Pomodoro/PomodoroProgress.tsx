@@ -18,6 +18,7 @@ export const PomodoroProgress: React.FC<PomodoroProgressProps> = (props) => {
     <div className={classes.container}>
       {array.map((val) => (
         <span
+          key={val}
           className={clsx(
             classes.dot,
             val < ((currentSessionNumber - 1) % sessionsBeforeLongBreak) + 1
