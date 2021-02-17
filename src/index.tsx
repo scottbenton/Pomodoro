@@ -1,11 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
+import { AppProviders } from "./components/providers/AppProviders";
 import reportWebVitals from "./reportWebVitals";
 import { register } from "./serviceWorkerRegistration";
+
+import "typeface-nunito";
+
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <AppProviders>
+      <App />
+    </AppProviders>
   </React.StrictMode>,
   document.getElementById("root")
 );
