@@ -1,7 +1,6 @@
 import { Box, Typography } from "@material-ui/core";
 import React, { useEffect } from "react";
 import { TIMER_STATUSES, useTimer } from "../../hooks/useTimer";
-import { TimerControls } from "./TimerControls";
 import { TimerDisplay } from "./TimerDisplay";
 
 export interface TimerProps {

@@ -34,7 +34,7 @@ export const colors: IColors = {
   },
   [THEME_COLORS.CYAN]: {
     name: "Cyan",
-    mainValue: "#06B6D4",
+    mainValue: "#0891B2",
   },
   [THEME_COLORS.BLUE]: {
     name: "Blue",

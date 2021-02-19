@@ -1,13 +1,14 @@
 import React, { ChangeEvent, Dispatch, SetStateAction } from "react";
 import {
+  Button,
   Grid,
   InputAdornment,
   TextField,
   Typography,
-  Switch,
 } from "@material-ui/core";
-import { useStyles } from "./styles";
 import { pomodoroSettings } from "../../hooks/usePomodoro";
+import { SettingsSwitch } from "./SettingsSwitch";
+import { useNotifications } from "../providers/NotificationProvider";
 
 export interface PomodoroSettingsProps {
   pomodoroSettings: pomodoroSettings;
@@ -16,7 +17,13 @@ export interface PomodoroSettingsProps {
 
 export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
   const { pomodoroSettings, setPomodoroSettings } = props;
-  const classes = useStyles();
+
+  const {
+    requestNotificationPermission,
+    areNotificationsSupported,
+    toggleAudioEnabled,
+    audioEnabled,
+  } = useNotifications();
   /**
    * Settings to change
    *
@@ -88,15 +95,31 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
           <Grid item xs={12}>
             <Typography variant={"h6"}>General Settings</Typography>
           </Grid>
+          {areNotificationsSupported &&
+            window.Notification.permission === "default" && (
+              <Grid item xs={12}>
+                <Button
+                  color={"primary"}
+                  variant={"contained"}
+                  onClick={requestNotificationPermission}
+                >
+                  Enable Push Notifications
+                </Button>
+              </Grid>
+            )}
           <Grid item xs={12}>
-            <label className={classes.switchLabel}>
-              <Typography variant={"body1"}>Long Breaks</Typography>
-              <Switch
-                color={"primary"}
-                checked={pomodoroSettings.longBreaksEnabled}
-                onChange={(evt, checked) => handleLongBreakSwitch(checked)}
-              />
-            </label>
+            <SettingsSwitch
+              label={"Audio Reminder Enabled"}
+              checked={audioEnabled}
+              handleToggle={toggleAudioEnabled}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <SettingsSwitch
+              label={"Long Breaks"}
+              checked={pomodoroSettings.longBreaksEnabled}
+              handleToggle={handleLongBreakSwitch}
+            />
           </Grid>
           <Grid item xs={12}>
             <TextField

@@ -1,5 +1,5 @@
 import { Box } from "@material-ui/core";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { DrawerToggle } from "./components/DrawerToggle/DrawerToggle";
 import { PomodoroProgress } from "./components/Pomodoro/PomodoroProgress";
 import { ThemeChange } from "./components/ThemeChange";
@@ -12,8 +12,11 @@ import {
 import ThemeIcon from "@material-ui/icons/FormatPaintRounded";
 import SettingsIcon from "@material-ui/icons/SettingsRounded";
 import { PomodoroSettings } from "./components/Pomodoro/PomodoroSettings";
+import { useNotifications } from "./components/providers/NotificationProvider";
 
 function App() {
+  const { notify } = useNotifications();
+
   const [pomSettings, setPomSettings] = useState<pomodoroSettings>({
     workLengthInMinutes: 25,
     breakLengthInMinutes: 5,
@@ -33,6 +36,11 @@ function App() {
   if (currentCycleType === CYCLE_TYPES.LONG_BREAK) title = "Long Break";
   else if (currentCycleType === CYCLE_TYPES.BREAK) title = "Break";
 
+  const handleCycleEnd = useCallback(() => {
+    finishCycle();
+    notify("Hello World", "Test Notification");
+  }, [finishCycle, notify]);
+
   return (
     <Box display={"flex"} height={"100vh"} flexDirection={"column"}>
       <Box
@@ -44,7 +52,7 @@ function App() {
       >
         <Timer
           timeInSeconds={currentCycleLength * 60}
-          timerFinishCallback={finishCycle}
+          timerFinishCallback={handleCycleEnd}
           title={title}
         />
         {pomSettings.longBreaksEnabled && (
