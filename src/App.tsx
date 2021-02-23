@@ -1,40 +1,22 @@
 import { Box } from "@material-ui/core";
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { DrawerToggle } from "./components/DrawerToggle/DrawerToggle";
 import { PomodoroProgress } from "./components/Pomodoro/PomodoroProgress";
 import { ThemeChange } from "./components/ThemeChange";
 import { Timer } from "./components/Timer/Timer";
-import {
-  CYCLE_TYPES,
-  usePomodoro,
-  pomodoroSettings,
-} from "./hooks/usePomodoro";
+import { CYCLE_TYPES, usePomodoro } from "./hooks/usePomodoro";
 import ThemeIcon from "@material-ui/icons/FormatPaintRounded";
 import SettingsIcon from "@material-ui/icons/SettingsRounded";
 import { PomodoroSettings } from "./components/Pomodoro/PomodoroSettings";
 import { useNotifications } from "./components/providers/NotificationProvider";
+import { usePomodoroSettings } from "./globalState/globalPomodoroSettings";
 
 function App() {
   const { notify } = useNotifications();
+  const pomodoroSettings = usePomodoroSettings();
+  const { longBreaksEnabled, cyclesBeforeLongBreak } = pomodoroSettings.get();
 
-  const [pomSettings, setPomSettings] = useState<pomodoroSettings>({
-    workLengthInMinutes: 25,
-    breakLengthInMinutes: 5,
-    longBreakLengthInMinutes: 15,
-    cyclesBeforeLongBreak: 4,
-    longBreaksEnabled: true,
-  });
-
-  const {
-    cycleCount,
-    currentCycleType,
-    currentCycleLength,
-    finishCycle,
-  } = usePomodoro(pomSettings);
-
-  let title = "Work";
-  if (currentCycleType === CYCLE_TYPES.LONG_BREAK) title = "Long Break";
-  else if (currentCycleType === CYCLE_TYPES.BREAK) title = "Break";
+  const { state, finishCycle } = usePomodoro();
 
   const handleCycleEnd = useCallback(() => {
     finishCycle();
@@ -50,15 +32,11 @@ function App() {
         alignItems={"center"}
         flexGrow={1}
       >
-        <Timer
-          timeInSeconds={currentCycleLength * 60}
-          timerFinishCallback={handleCycleEnd}
-          title={title}
-        />
-        {pomSettings.longBreaksEnabled && (
+        <Timer pomodoroState={state} timerFinishCallback={handleCycleEnd} />
+        {longBreaksEnabled && (
           <PomodoroProgress
-            currentSessionNumber={cycleCount}
-            sessionsBeforeLongBreak={pomSettings.cyclesBeforeLongBreak}
+            currentSessionNumber={state.count}
+            sessionsBeforeLongBreak={cyclesBeforeLongBreak}
           />
         )}
       </Box>
@@ -71,12 +49,7 @@ function App() {
         <DrawerToggle
           title={"Pomodoro Settings"}
           icon={<SettingsIcon />}
-          drawerContent={
-            <PomodoroSettings
-              pomodoroSettings={pomSettings}
-              setPomodoroSettings={setPomSettings}
-            />
-          }
+          drawerContent={<PomodoroSettings />}
         />
       </Box>
     </Box>

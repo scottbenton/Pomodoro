@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export enum TIMER_STATUSES {
-  RUNNING,
-  READY,
-  PAUSED,
-  COMPLETE,
+  RUNNING = "Running",
+  READY = "Ready",
+  PAUSED = "Paused",
+  COMPLETE = "Complete",
 }
 
 interface TimerState {
@@ -21,23 +21,34 @@ function getInitialState(time: number) {
   return initialState;
 }
 
-export function useTimer(totalTimeInSeconds: number) {
+export function useTimer(
+  totalTimeInSeconds: number,
+  resetKey: any,
+  autoStart: boolean
+) {
   const totalTime = totalTimeInSeconds * 1000;
   const [timerState, setTimerState] = useState<TimerState>(
     getInitialState(totalTime)
   );
   const timerInterval = useRef<NodeJS.Timeout>();
 
-  const stop = useCallback(() => {
+  const prevResetKey = useRef<any>(resetKey);
+
+  const stopTimer = useCallback(() => {
     if (timerInterval.current) {
       clearInterval(timerInterval.current);
       timerInterval.current = undefined;
-      setTimerState((prevState) => ({
-        status: TIMER_STATUSES.PAUSED,
-        remainingTime: prevState.remainingTime,
-      }));
     }
   }, [timerInterval]);
+
+  const pause = useCallback(() => {
+    stopTimer();
+    setTimerState((prevState) => ({
+      ...prevState,
+      lastPolledTime: undefined,
+      status: TIMER_STATUSES.PAUSED,
+    }));
+  }, [stopTimer]);
 
   const start = useCallback(() => {
     setTimerState((prevTimerState) => ({
@@ -65,7 +76,7 @@ export function useTimer(totalTimeInSeconds: number) {
             remainingTime: remainingTime,
           };
         } else {
-          stop();
+          stopTimer();
           return {
             status: TIMER_STATUSES.COMPLETE,
             remainingTime: 0,
@@ -73,19 +84,25 @@ export function useTimer(totalTimeInSeconds: number) {
         }
       });
     }, 1000);
-  }, [stop]);
+  }, [stopTimer]);
 
   const reset = useCallback(() => {
     setTimerState(getInitialState(totalTime));
-  }, [totalTime]);
+    if (autoStart) {
+      start();
+    }
+  }, [totalTime, start, autoStart]);
 
   useEffect(() => {
-    reset();
-  }, [reset]);
+    if (prevResetKey.current && prevResetKey.current !== resetKey) {
+      reset();
+    }
+    prevResetKey.current = resetKey;
+  }, [reset, resetKey]);
 
   return {
     start,
-    stop,
+    pause,
     reset,
     remainingTime: timerState.remainingTime,
     status: timerState.status,

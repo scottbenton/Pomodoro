@@ -1,12 +1,5 @@
 import { useCallback, useEffect, useReducer } from "react";
-
-export interface pomodoroSettings {
-  workLengthInMinutes: number;
-  breakLengthInMinutes: number;
-  longBreakLengthInMinutes: number;
-  cyclesBeforeLongBreak: number;
-  longBreaksEnabled: boolean;
-}
+import { usePomodoroSettings } from "../globalState/globalPomodoroSettings";
 
 export enum CYCLE_TYPES {
   WORK = "work",
@@ -14,10 +7,10 @@ export enum CYCLE_TYPES {
   LONG_BREAK = "long break",
 }
 
-interface CycleState {
-  currentCycleType: CYCLE_TYPES;
-  currentCycleCount: number;
-  currentCycleLength: number;
+export interface PomodoroCycleState {
+  type: CYCLE_TYPES;
+  count: number;
+  length: number;
 }
 
 enum CYCLE_ACTIONS {
@@ -25,7 +18,9 @@ enum CYCLE_ACTIONS {
   UPDATE_VALUES,
 }
 
-export function usePomodoro(settings: pomodoroSettings) {
+export function usePomodoro() {
+  const pomodoroSettings = usePomodoroSettings();
+  const settings = pomodoroSettings.get();
   const {
     workLengthInMinutes,
     breakLengthInMinutes,
@@ -34,41 +29,40 @@ export function usePomodoro(settings: pomodoroSettings) {
     longBreaksEnabled,
   } = settings;
 
-  const reducer = (prevState: CycleState, action: CYCLE_ACTIONS) => {
-    const { currentCycleCount, currentCycleType } = prevState;
+  const reducer = (prevState: PomodoroCycleState, action: CYCLE_ACTIONS) => {
+    const { count, type } = prevState;
     let newState = { ...prevState };
 
     switch (action) {
       case CYCLE_ACTIONS.NEXT_CYCLE:
-        switch (currentCycleType) {
+        switch (type) {
           case CYCLE_TYPES.WORK:
             const isLongBreakNext =
-              longBreaksEnabled &&
-              currentCycleCount % cyclesBeforeLongBreak === 0;
-            newState.currentCycleType = isLongBreakNext
+              longBreaksEnabled && count % cyclesBeforeLongBreak === 0;
+            newState.type = isLongBreakNext
               ? CYCLE_TYPES.LONG_BREAK
               : CYCLE_TYPES.BREAK;
-            newState.currentCycleLength = isLongBreakNext
+            newState.length = isLongBreakNext
               ? longBreakLengthInMinutes
               : breakLengthInMinutes;
             break;
           case CYCLE_TYPES.LONG_BREAK:
           case CYCLE_TYPES.BREAK:
-            newState.currentCycleCount = prevState.currentCycleCount + 1;
-            newState.currentCycleType = CYCLE_TYPES.WORK;
-            newState.currentCycleLength = workLengthInMinutes;
+            newState.count = prevState.count + 1;
+            newState.type = CYCLE_TYPES.WORK;
+            newState.length = workLengthInMinutes;
         }
         break;
       case CYCLE_ACTIONS.UPDATE_VALUES:
-        switch (currentCycleType) {
+        switch (type) {
           case CYCLE_TYPES.WORK:
-            newState.currentCycleLength = workLengthInMinutes;
+            newState.length = workLengthInMinutes;
             break;
           case CYCLE_TYPES.BREAK:
-            newState.currentCycleLength = breakLengthInMinutes;
+            newState.length = breakLengthInMinutes;
             break;
           case CYCLE_TYPES.LONG_BREAK:
-            newState.currentCycleLength = longBreakLengthInMinutes;
+            newState.length = longBreakLengthInMinutes;
             break;
         }
     }
@@ -77,9 +71,9 @@ export function usePomodoro(settings: pomodoroSettings) {
   };
 
   const [cycleState, dispatch] = useReducer(reducer, {
-    currentCycleType: CYCLE_TYPES.WORK,
-    currentCycleLength: workLengthInMinutes,
-    currentCycleCount: 1,
+    type: CYCLE_TYPES.WORK,
+    length: workLengthInMinutes,
+    count: 1,
   });
 
   const finishCycle = useCallback(() => {
@@ -88,12 +82,16 @@ export function usePomodoro(settings: pomodoroSettings) {
 
   useEffect(() => {
     dispatch(CYCLE_ACTIONS.UPDATE_VALUES);
-  }, [settings]);
+  }, [
+    workLengthInMinutes,
+    breakLengthInMinutes,
+    longBreakLengthInMinutes,
+    cyclesBeforeLongBreak,
+    longBreaksEnabled,
+  ]);
 
   return {
     finishCycle,
-    cycleCount: cycleState.currentCycleCount,
-    currentCycleLength: cycleState.currentCycleLength,
-    currentCycleType: cycleState.currentCycleType,
+    state: cycleState,
   };
 }

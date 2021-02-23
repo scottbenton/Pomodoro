@@ -8,13 +8,13 @@ import ResetIcon from "@material-ui/icons/ReplayRounded";
 
 export interface TimerControlsProps {
   start: () => void;
-  stop: () => void;
+  pause: () => void;
   reset: () => void;
   status: TIMER_STATUSES;
 }
 
 export const TimerControls: React.FC<TimerControlsProps> = (props) => {
-  const { start, stop, reset, status } = props;
+  const { start, pause, reset, status } = props;
 
   return (
     <Box marginTop={1}>
@@ -24,7 +24,7 @@ export const TimerControls: React.FC<TimerControlsProps> = (props) => {
         </IconButton>
       ) : null}
       {status === TIMER_STATUSES.RUNNING ? (
-        <IconButton onClick={stop} color={"primary"}>
+        <IconButton onClick={pause} color={"primary"}>
           <PauseIcon />
         </IconButton>
       ) : null}

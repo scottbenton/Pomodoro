@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useNotificationSettings } from "../../../globalState/globalNotificationState";
 import { NotificationContext } from "./NotificationContext";
 
 const notificationAudio = new Audio("/notification.mp3");
@@ -12,27 +13,13 @@ enum NOTIFICATION_PERMISSIONS {
 export const NotificationProvider: React.FC = (props) => {
   const { children } = props;
 
-  const areNotificationsSupported = "Notification" in window;
-  const areNotificationsAllowed = useCallback(() => {
-    return areNotificationsSupported
-      ? window.Notification.permission === NOTIFICATION_PERMISSIONS.GRANTED
-      : false;
-  }, [areNotificationsSupported]);
-
-  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(
-    areNotificationsAllowed()
-  );
-
-  const [audioEnabled, setAudioEnabled] = useState<boolean>(
-    window.localStorage.getItem("audioEnabled") === "true"
-  );
-  const toggleAudioEnabled = () => {
-    setAudioEnabled((prevValue) => !prevValue);
-  };
-
-  useEffect(() => {
-    window.localStorage.setItem("audioEnabled", audioEnabled + "");
-  }, [audioEnabled]);
+  const notificationSettings = useNotificationSettings();
+  const {
+    notificationDecisionMade,
+    notificationsEnabled,
+    notificationsSupported,
+    audioEnabled,
+  } = notificationSettings;
 
   const isWindowFocused = useRef<boolean>(true);
   useEffect(() => {
@@ -48,38 +35,43 @@ export const NotificationProvider: React.FC = (props) => {
   }, []);
 
   const requestNotificationPermission = () => {
-    if (areNotificationsSupported) {
+    if (notificationsSupported.get()) {
       try {
         Notification.requestPermission().then(() => {
-          setNotificationsEnabled(areNotificationsAllowed());
+          notificationsEnabled.set(
+            window.Notification.permission === "granted"
+          );
+          notificationDecisionMade.set(
+            window.Notification.permission !== "default"
+          );
         });
       } catch (e) {
-        Notification.requestPermission(() =>
-          setNotificationsEnabled(areNotificationsAllowed())
-        );
+        Notification.requestPermission(() => {
+          notificationsEnabled.set(
+            window.Notification.permission === "granted"
+          );
+          notificationDecisionMade.set(
+            window.Notification.permission !== "default"
+          );
+        });
       }
     }
   };
-
   const notify = useCallback(
     (title: string, message: string) => {
-      if (audioEnabled) {
+      if (audioEnabled.get()) {
         notificationAudio.play();
       }
-      if (areNotificationsAllowed() && !isWindowFocused.current) {
+      if (notificationsEnabled.get() && !isWindowFocused.current) {
         new Notification(title, { body: message });
       }
     },
-    [areNotificationsAllowed, audioEnabled]
+    [notificationsEnabled, audioEnabled]
   );
 
   return (
     <NotificationContext.Provider
       value={{
-        audioEnabled,
-        toggleAudioEnabled,
-        areNotificationsSupported,
-        notificationsEnabled,
         notify,
         requestNotificationPermission,
       }}
