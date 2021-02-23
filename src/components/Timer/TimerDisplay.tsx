@@ -9,7 +9,7 @@ export interface TimerDisplayProps {
   totalTime: number;
   remainingTime: number;
   start: () => void;
-  stop: () => void;
+  pause: () => void;
   reset: () => void;
   status: TIMER_STATUSES;
 }

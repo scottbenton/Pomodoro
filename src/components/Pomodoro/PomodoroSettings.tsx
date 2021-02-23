@@ -1,84 +1,46 @@
-import React, { ChangeEvent, Dispatch, SetStateAction } from "react";
-import {
-  Grid,
-  InputAdornment,
-  TextField,
-  Typography,
-  Switch,
-} from "@material-ui/core";
-import { useStyles } from "./styles";
-import { pomodoroSettings } from "../../hooks/usePomodoro";
+import React from "react";
+import { Grid, InputAdornment, TextField, Typography } from "@material-ui/core";
+import { SettingsSwitch } from "./SettingsSwitch";
+import { useNotifications } from "../providers/NotificationProvider";
+import { usePomodoroSettings } from "../../globalState/globalPomodoroSettings";
+import { useNotificationSettings } from "../../globalState/globalNotificationState";
 
-export interface PomodoroSettingsProps {
-  pomodoroSettings: pomodoroSettings;
-  setPomodoroSettings: Dispatch<SetStateAction<pomodoroSettings>>;
-}
+export interface PomodoroSettingsProps {}
 
 export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
-  const { pomodoroSettings, setPomodoroSettings } = props;
-  const classes = useStyles();
-  /**
-   * Settings to change
-   *
-   * Work Length In Minutes
-   * Break Length In Minutes
-   * Long Break Length In Minutes
-   *
-   * Cycles per Long Break
-   *
-   * Eventual Settings
-   * - notifications
-   * - sound
-   */
+  const {
+    workLengthInMinutes,
+    breakLengthInMinutes,
+    longBreakLengthInMinutes,
+    cyclesBeforeLongBreak,
+    longBreaksEnabled,
+    autoStartCycles,
+  } = usePomodoroSettings();
 
-  const handleLongBreakSwitch = (checked: boolean) => {
-    setPomodoroSettings((prevSettings) => {
-      let newSettings = { ...prevSettings };
-      newSettings.longBreaksEnabled = checked;
-      return newSettings;
-    });
-  };
-  const handleCyclesBeforeLongBreak = (evt: ChangeEvent<HTMLInputElement>) => {
-    const parsedValue = parseInt(evt.target.value);
-    setPomodoroSettings((prevSettings) => {
-      let newSettings = { ...prevSettings };
-      newSettings.cyclesBeforeLongBreak = isNaN(parsedValue) ? 0 : parsedValue;
-      return newSettings;
-    });
-  };
+  const { requestNotificationPermission } = useNotifications();
 
-  const parseTimeInMinutes = (rawTime: string) => {
-    const time = parseInt(rawTime);
-    if (time < 0 || isNaN(time)) {
-      return 0;
-    } else {
-      return time;
+  const {
+    audioEnabled,
+    notificationsSupported,
+    notificationsEnabled,
+    notificationDecisionMade,
+  } = useNotificationSettings();
+
+  const handleNotificationToggle = (checked: boolean) => {
+    if (notificationDecisionMade || !checked) {
+      notificationsEnabled.set(checked);
+    } else if (checked && !notificationDecisionMade) {
+      requestNotificationPermission();
     }
   };
 
-  const handleWorkTimeChange = (evt: ChangeEvent<HTMLInputElement>) => {
-    setPomodoroSettings((prevSettings) => {
-      let newSettings = { ...prevSettings };
-      newSettings.workLengthInMinutes = parseTimeInMinutes(evt.target.value);
-      return newSettings;
-    });
-  };
-  const handleBreakTimeChange = (evt: ChangeEvent<HTMLInputElement>) => {
-    setPomodoroSettings((prevSettings) => {
-      let newSettings = { ...prevSettings };
-      newSettings.breakLengthInMinutes = parseTimeInMinutes(evt.target.value);
-      return newSettings;
-    });
-  };
-
-  const handleLongBreakTimeChange = (evt: ChangeEvent<HTMLInputElement>) => {
-    setPomodoroSettings((prevSettings) => {
-      let newSettings = { ...prevSettings };
-      newSettings.longBreakLengthInMinutes = parseTimeInMinutes(
-        evt.target.value
-      );
-      return newSettings;
-    });
+  const parsePositiveInteger = (rawString: string) => {
+    const intVal = parseInt(rawString);
+    if (intVal < 0 || isNaN(intVal)) {
+      return 0;
+    } else {
+      return intVal;
+    }
   };
 
   return (
@@ -88,15 +50,37 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
           <Grid item xs={12}>
             <Typography variant={"h6"}>General Settings</Typography>
           </Grid>
+          {notificationsSupported.get() &&
+            !notificationsEnabled.get() &&
+            notificationDecisionMade.get() && (
+              <Grid item xs={12}>
+                <SettingsSwitch
+                  label={"Push Notifications Enabled"}
+                  checked={notificationsEnabled.get()}
+                  handleToggle={handleNotificationToggle}
+                />
+              </Grid>
+            )}
           <Grid item xs={12}>
-            <label className={classes.switchLabel}>
-              <Typography variant={"body1"}>Long Breaks</Typography>
-              <Switch
-                color={"primary"}
-                checked={pomodoroSettings.longBreaksEnabled}
-                onChange={(evt, checked) => handleLongBreakSwitch(checked)}
-              />
-            </label>
+            <SettingsSwitch
+              label={"Audio Reminder Enabled"}
+              checked={audioEnabled.get()}
+              handleToggle={(checked) => audioEnabled.set(checked)}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <SettingsSwitch
+              label={"Auto-Start Cycles"}
+              checked={autoStartCycles.get()}
+              handleToggle={(checked) => autoStartCycles.set(checked)}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <SettingsSwitch
+              label={"Long Breaks"}
+              checked={longBreaksEnabled.get()}
+              handleToggle={(checked) => longBreaksEnabled.set(checked)}
+            />
           </Grid>
           <Grid item xs={12}>
             <TextField
@@ -104,9 +88,13 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
               type={"tel"}
               fullWidth
               variant={"filled"}
-              value={pomodoroSettings.cyclesBeforeLongBreak}
-              onChange={handleCyclesBeforeLongBreak}
-              disabled={!pomodoroSettings.longBreaksEnabled}
+              value={cyclesBeforeLongBreak.get()}
+              onChange={(evt) =>
+                cyclesBeforeLongBreak.set(
+                  parsePositiveInteger(evt.target.value)
+                )
+              }
+              disabled={!longBreaksEnabled.get()}
             />
           </Grid>
         </Grid>
@@ -120,8 +108,10 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
             <TextField
               label={"Work Length"}
               type={"tel"}
-              value={pomodoroSettings.workLengthInMinutes}
-              onChange={handleWorkTimeChange}
+              value={workLengthInMinutes.get()}
+              onChange={(evt) =>
+                workLengthInMinutes.set(parsePositiveInteger(evt.target.value))
+              }
               fullWidth
               variant={"filled"}
               InputProps={{
@@ -135,8 +125,10 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
             <TextField
               label={"Break Length"}
               type={"tel"}
-              value={pomodoroSettings.breakLengthInMinutes}
-              onChange={handleBreakTimeChange}
+              value={breakLengthInMinutes.get()}
+              onChange={(evt) =>
+                breakLengthInMinutes.set(parsePositiveInteger(evt.target.value))
+              }
               fullWidth
               variant={"filled"}
               InputProps={{
@@ -148,12 +140,16 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
           </Grid>
           <Grid item xs={12}>
             <TextField
-              disabled={!pomodoroSettings.longBreaksEnabled}
+              disabled={!longBreaksEnabled.get()}
               label={"Long Break Length"}
               fullWidth
               type={"tel"}
-              value={pomodoroSettings.longBreakLengthInMinutes}
-              onChange={handleLongBreakTimeChange}
+              value={longBreakLengthInMinutes.get()}
+              onChange={(evt) =>
+                longBreakLengthInMinutes.set(
+                  parsePositiveInteger(evt.target.value)
+                )
+              }
               variant={"filled"}
               InputProps={{
                 endAdornment: (

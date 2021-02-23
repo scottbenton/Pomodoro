@@ -8,14 +8,7 @@ export enum THEME_COLORS {
   VIOLET = "violet",
 }
 
-interface IColors {
-  [color: string]: {
-    name: string;
-    mainValue: string;
-  };
-}
-
-export const colors: IColors = {
+export const themeColors = {
   [THEME_COLORS.ROSE]: {
     name: "Rose",
     mainValue: "#E11D48",
@@ -34,7 +27,7 @@ export const colors: IColors = {
   },
   [THEME_COLORS.CYAN]: {
     name: "Cyan",
-    mainValue: "#06B6D4",
+    mainValue: "#0891B2",
   },
   [THEME_COLORS.BLUE]: {
     name: "Blue",
@@ -52,16 +45,7 @@ export enum THEME_TYPES {
   BLACK = "black",
 }
 
-interface IThemeColors {
-  [themeKey: string]: {
-    name: string;
-    type: "light" | "dark";
-    backgroundColor: string;
-    paperColor: string;
-  };
-}
-
-export const themeColors: IThemeColors = {
+export const themeTypes = {
   [THEME_TYPES.LIGHT]: {
     name: "Light",
     type: "light",

@@ -1,22 +1,42 @@
 import { Box, Typography } from "@material-ui/core";
 import React, { useEffect } from "react";
+import { usePomodoroSettings } from "../../globalState/globalPomodoroSettings";
+import { CYCLE_TYPES, PomodoroCycleState } from "../../hooks/usePomodoro";
 import { TIMER_STATUSES, useTimer } from "../../hooks/useTimer";
-import { TimerControls } from "./TimerControls";
 import { TimerDisplay } from "./TimerDisplay";
 
+const getTitleFromCycleType = (type: CYCLE_TYPES) => {
+  switch (type) {
+    case CYCLE_TYPES.BREAK:
+      return "Break";
+    case CYCLE_TYPES.LONG_BREAK:
+      return "Long Break";
+    case CYCLE_TYPES.WORK:
+      return "Work";
+    default:
+      return "Unknown";
+  }
+};
+
 export interface TimerProps {
-  timeInSeconds: number;
+  pomodoroState: PomodoroCycleState;
   timerFinishCallback?: () => void;
-  title?: string;
 }
 
 export const Timer: React.FC<TimerProps> = (props) => {
-  const { timeInSeconds, timerFinishCallback, title } = props;
+  const { pomodoroState, timerFinishCallback } = props;
 
-  const timerProps = useTimer(timeInSeconds);
+  const { autoStartCycles } = usePomodoroSettings();
+
+  const timerProps = useTimer(
+    pomodoroState.length * 60,
+    pomodoroState.type,
+    autoStartCycles.get()
+  );
 
   const { status } = timerProps;
   useEffect(() => {
+    console.debug("Status:", status);
     if (timerFinishCallback && status === TIMER_STATUSES.COMPLETE) {
       timerFinishCallback();
     }
@@ -29,13 +49,10 @@ export const Timer: React.FC<TimerProps> = (props) => {
       alignItems={"center"}
       marginTop={2}
     >
-      {title && (
-        <Typography variant={"h4"} component={"h1"} gutterBottom>
-          {title}
-        </Typography>
-      )}
+      <Typography variant={"h4"} component={"h1"} gutterBottom>
+        {getTitleFromCycleType(pomodoroState.type)}
+      </Typography>
       <TimerDisplay {...timerProps} />
-      {/* <TimerControls start={start} stop={stop} reset={reset} status={status} /> */}
     </Box>
   );
 };
