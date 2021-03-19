@@ -1,32 +1,38 @@
 import React from "react";
-import { useStyles } from "./styles";
-import clsx from "clsx";
+import CheckedIcon from "@material-ui/icons/CheckCircle";
+import UnCheckedIcon from "@material-ui/icons/RadioButtonUnchecked";
+import { Box, Typography } from "@material-ui/core";
 
 export interface PomodoroProgressProps {
-  currentSessionNumber: number;
-  sessionsBeforeLongBreak: number;
+    currentSessionNumber: number;
+    sessionsBeforeLongBreak: number;
 }
 
 export const PomodoroProgress: React.FC<PomodoroProgressProps> = (props) => {
-  const { currentSessionNumber, sessionsBeforeLongBreak } = props;
+    const { currentSessionNumber, sessionsBeforeLongBreak } = props;
 
-  const classes = useStyles();
+    const array = Array.from(Array(sessionsBeforeLongBreak).keys());
 
-  const array = Array.from(Array(sessionsBeforeLongBreak).keys());
-
-  return (
-    <div className={classes.container}>
-      {array.map((val) => (
-        <span
-          key={val}
-          className={clsx(
-            classes.dot,
-            val < ((currentSessionNumber - 1) % sessionsBeforeLongBreak) + 1
-              ? classes.dotFilled
-              : classes.dotUnfilled
-          )}
-        />
-      ))}
-    </div>
-  );
+    return (
+        <Box padding={2}>
+            <Typography variant={"overline"} color={"textSecondary"}>
+                Cycles until Long Break
+            </Typography>
+            <Box
+                display={"flex"}
+                alignItems={"center"}
+                justifyContent={"center"}
+            >
+                {array.map((val) =>
+                    val <
+                    ((currentSessionNumber - 1) % sessionsBeforeLongBreak) +
+                        1 ? (
+                        <CheckedIcon color={"primary"} />
+                    ) : (
+                        <UnCheckedIcon color={"disabled"} />
+                    )
+                )}
+            </Box>
+        </Box>
+    );
 };

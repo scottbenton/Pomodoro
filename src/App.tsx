@@ -4,7 +4,7 @@ import { DrawerToggle } from "./components/DrawerToggle/DrawerToggle";
 import { PomodoroProgress } from "./components/Pomodoro/PomodoroProgress";
 import { ThemeChange } from "./components/ThemeChange";
 import { Timer } from "./components/Timer/Timer";
-import { usePomodoro } from "./hooks/usePomodoro";
+import { CYCLE_TYPES, usePomodoro } from "./hooks/usePomodoro";
 import ThemeIcon from "@material-ui/icons/FormatPaintRounded";
 import SettingsIcon from "@material-ui/icons/SettingsRounded";
 import { PomodoroSettings } from "./components/Pomodoro/PomodoroSettings";
@@ -22,8 +22,9 @@ function App() {
     const { state, finishCycle } = usePomodoro();
 
     const handleCycleEnd = useCallback(() => {
+        notify("Cycle Completed", "Pomodoro Cycle is Complete");
+
         finishCycle();
-        notify("Hello World", "Test Notification");
     }, [finishCycle, notify]);
 
     return (
