@@ -21,7 +21,9 @@ export const DrawerToggle: React.FC<DrawerToggleProps> = (props) => {
 
   return (
     <>
-      <IconButton onClick={() => setIsDrawerOpen(true)}>{icon}</IconButton>
+      <IconButton onClick={() => setIsDrawerOpen(true)} color={"inherit"}>
+        {icon}
+      </IconButton>
       <Drawer
         anchor={"bottom"}
         open={isDrawerOpen}

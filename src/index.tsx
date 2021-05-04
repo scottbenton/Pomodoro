@@ -4,8 +4,11 @@ import App from "./App";
 import { AppProviders } from "./components/providers/AppProviders";
 import reportWebVitals from "./reportWebVitals";
 import { register } from "./serviceWorkerRegistration";
+import { init } from "utils/firebase";
 
 import "typeface-nunito";
+
+init();
 
 ReactDOM.render(
   <React.StrictMode>
