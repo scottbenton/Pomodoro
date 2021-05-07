@@ -22,6 +22,13 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          REACT_APP_FB_API_KEY: ${{secrets.REACT_APP_FB_API_KEY}}
+          REACT_APP_FB_AUTH_DOMAIN: ${{secrets.REACT_APP_FB_AUTH_DOMAIN}}
+          REACT_APP_FB_PROJECT_ID: ${{secrets.REACT_APP_FB_PROJECT_ID}}
+          REACT_APP_FB_STORAGE_BUCKET: ${{secrets.REACT_APP_FB_STORAGE_BUCKET}}
+          REACT_APP_FB_MESSAGING_ID: ${{secrets.REACT_APP_FB_MESSAGING_ID}}
+          REACT_APP_FB_APP_ID: ${{secrets.REACT_APP_FB_APP_ID}}
 
       - name: Deploy to Live Environment
         uses: FirebaseExtended/action-hosting-deploy@v0
