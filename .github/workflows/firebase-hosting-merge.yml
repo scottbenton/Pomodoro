@@ -2,7 +2,7 @@
 # https://github.com/firebase/firebase-tools
 
 name: Deploy to Firebase Hosting on merge
-'on':
+"on":
   push:
     branches:
       - main
@@ -11,10 +11,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2.1.2
         with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_TASKS_34EC6 }}'
+          node-version: "12.x"
+
+      - name: Install Packages
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to Live Environment
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_TASKS_34EC6 }}"
           channelId: live
           projectId: tasks-34ec6
         env:
