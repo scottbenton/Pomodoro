@@ -30,7 +30,7 @@ jobs:
           REACT_APP_FB_MESSAGING_ID: ${{secrets.REACT_APP_FB_MESSAGING_ID}}
           REACT_APP_FB_APP_ID: ${{secrets.REACT_APP_FB_APP_ID}}
 
-      - name: Deploy to Live Environment
+      - name: Deploy to Production Environment
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
