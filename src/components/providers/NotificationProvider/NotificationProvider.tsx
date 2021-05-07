@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNotificationSettings } from "../../../globalState/globalNotificationState";
 import { NotificationContext } from "./NotificationContext";
 
-const notificationAudio = new Audio("/notification.mp3");
+// const notificationAudio = new Audio("/notification.mp3");
 
 enum NOTIFICATION_PERMISSIONS {
   GRANTED = "granted",
@@ -12,6 +12,8 @@ enum NOTIFICATION_PERMISSIONS {
 
 export const NotificationProvider: React.FC = (props) => {
   const { children } = props;
+
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const notificationSettings = useNotificationSettings();
   const {
@@ -60,7 +62,7 @@ export const NotificationProvider: React.FC = (props) => {
   const notify = useCallback(
     (title: string, message: string) => {
       if (audioEnabled.get()) {
-        notificationAudio.play();
+        audioRef.current?.play();
       }
       if (notificationsEnabled.get() && !isWindowFocused.current) {
         new Notification(title, { body: message });
@@ -76,6 +78,9 @@ export const NotificationProvider: React.FC = (props) => {
         requestNotificationPermission,
       }}
     >
+      <audio ref={audioRef}>
+        <source src={"/notification.mp3"} />
+      </audio>
       {children}
     </NotificationContext.Provider>
   );
