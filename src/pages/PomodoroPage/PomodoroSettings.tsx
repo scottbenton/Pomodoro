@@ -1,41 +1,15 @@
 import React from "react";
 import { InputAdornment, TextField } from "@material-ui/core";
 import { SettingsSwitch, FormSection } from "components/FormSection";
-import { useNotifications } from "components/providers/NotificationProvider";
-import { usePomodoroSettings } from "globalState/globalPomodoroSettings";
-import { useNotificationSettings } from "globalState/globalNotificationState";
-import { useWakelockSettings } from "globalState/globalWakelockState";
+import {
+  usePomodoroSettingsState,
+  CYCLES,
+} from "globalState/globalPomodoroSettings";
 
 export interface PomodoroSettingsProps {}
 
 export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
-  const {
-    workLengthInMinutes,
-    breakLengthInMinutes,
-    longBreakLengthInMinutes,
-    cyclesBeforeLongBreak,
-    longBreaksEnabled,
-    autoStartCycles,
-  } = usePomodoroSettings();
-
-  const { requestNotificationPermission } = useNotifications();
-
-  const {
-    audioEnabled,
-    notificationsSupported,
-    notificationsEnabled,
-    notificationDecisionMade,
-  } = useNotificationSettings();
-
-  const { wakelocksSupported, wakelocksEnabled } = useWakelockSettings();
-
-  const handleNotificationToggle = (checked: boolean) => {
-    if (notificationDecisionMade || !checked) {
-      notificationsEnabled.set(checked);
-    } else if (checked && !notificationDecisionMade) {
-      requestNotificationPermission();
-    }
-  };
+  const settings = usePomodoroSettingsState();
 
   const parsePositiveInteger = (rawString: string) => {
     const intVal = parseInt(rawString);
@@ -55,47 +29,40 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
         }
       >
         <>
-          {notificationsSupported.get() &&
-            !notificationsEnabled.get() &&
-            notificationDecisionMade.get() && (
-              <SettingsSwitch
-                label={"Push Notifications Enabled"}
-                checked={notificationsEnabled.get()}
-                handleToggle={handleNotificationToggle}
-              />
-            )}
           <SettingsSwitch
             label={"Audio Reminder Enabled"}
-            checked={audioEnabled.get()}
-            handleToggle={(checked) => audioEnabled.set(checked)}
+            checked={settings.playAudioOnCycleEnd.get()}
+            handleToggle={settings.playAudioOnCycleEnd.set}
           />
-          {wakelocksSupported.get() && (
+          {"wakeLock" in navigator && (
             <SettingsSwitch
               label={"Keep Screen On"}
-              checked={wakelocksEnabled.get()}
-              handleToggle={wakelocksEnabled.set}
+              checked={settings.keepScreenOnDuringCycles.get()}
+              handleToggle={settings.keepScreenOnDuringCycles.set}
             />
           )}
           <SettingsSwitch
             label={"Auto-Start Cycles"}
-            checked={autoStartCycles.get()}
-            handleToggle={(checked) => autoStartCycles.set(checked)}
+            checked={settings.autoStartCycles.get()}
+            handleToggle={settings.autoStartCycles.set}
           />
           <SettingsSwitch
             label={"Long Breaks"}
-            checked={longBreaksEnabled.get()}
-            handleToggle={(checked) => longBreaksEnabled.set(checked)}
+            checked={settings[CYCLES.LONG_BREAK].enabled.get()}
+            handleToggle={settings[CYCLES.LONG_BREAK].enabled.set}
           />
           <TextField
             label={"Cycles Until Long Break"}
             type={"tel"}
             fullWidth
             variant={"filled"}
-            value={cyclesBeforeLongBreak.get()}
+            value={settings[CYCLES.LONG_BREAK].cyclesBeforeLongBreak.get()}
             onChange={(evt) =>
-              cyclesBeforeLongBreak.set(parsePositiveInteger(evt.target.value))
+              settings[CYCLES.LONG_BREAK].cyclesBeforeLongBreak.set(
+                parsePositiveInteger(evt.target.value)
+              )
             }
-            disabled={!longBreaksEnabled.get()}
+            disabled={!settings[CYCLES.LONG_BREAK].enabled.get()}
           />
         </>
       </FormSection>
@@ -104,9 +71,11 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
           <TextField
             label={"Work Length"}
             type={"tel"}
-            value={workLengthInMinutes.get()}
+            value={settings[CYCLES.WORK].length.get()}
             onChange={(evt) =>
-              workLengthInMinutes.set(parsePositiveInteger(evt.target.value))
+              settings[CYCLES.WORK].length.set(
+                parsePositiveInteger(evt.target.value)
+              )
             }
             fullWidth
             variant={"filled"}
@@ -119,9 +88,11 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
           <TextField
             label={"Break Length"}
             type={"tel"}
-            value={breakLengthInMinutes.get()}
+            value={settings[CYCLES.BREAK].length.get()}
             onChange={(evt) =>
-              breakLengthInMinutes.set(parsePositiveInteger(evt.target.value))
+              settings[CYCLES.BREAK].length.set(
+                parsePositiveInteger(evt.target.value)
+              )
             }
             fullWidth
             variant={"filled"}
@@ -132,13 +103,13 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
             }}
           />
           <TextField
-            disabled={!longBreaksEnabled.get()}
+            disabled={!settings[CYCLES.LONG_BREAK].enabled.get()}
             label={"Long Break Length"}
             fullWidth
             type={"tel"}
-            value={longBreakLengthInMinutes.get()}
+            value={settings[CYCLES.LONG_BREAK].length.get()}
             onChange={(evt) =>
-              longBreakLengthInMinutes.set(
+              settings[CYCLES.LONG_BREAK].length.set(
                 parsePositiveInteger(evt.target.value)
               )
             }

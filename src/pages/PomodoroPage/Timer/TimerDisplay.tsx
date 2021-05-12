@@ -1,23 +1,21 @@
 import { Box, CircularProgress, Typography } from "@material-ui/core";
 import React from "react";
-import { TIMER_STATUSES } from "../../hooks/useTimer";
-import { convertMillisecondsToFriendlyTime } from "../../utils/timeUtils";
+import { convertMillisecondsToFriendlyTime } from "../../../utils/timeUtils";
 import { useStyles } from "./styles";
 import { TimerControls } from "./TimerControls";
+import { usePomodoroState } from "globalState/pomodoroState";
+import { usePomodoroSettingsState } from "globalState/globalPomodoroSettings";
 
-export interface TimerDisplayProps {
-  totalTime: number;
-  remainingTime: number;
-  start: () => void;
-  pause: () => void;
-  reset: () => void;
-  status: TIMER_STATUSES;
-}
+export interface TimerDisplayProps {}
 
 export const TimerDisplay: React.FC<TimerDisplayProps> = (props) => {
-  const { totalTime, remainingTime, ...controlsProps } = props;
+  const settings = usePomodoroSettingsState().get();
+  const pomodoroState = usePomodoroState().get();
 
   const classes = useStyles();
+
+  const totalTime = settings[pomodoroState.currentCycleType].length * 1000 * 60;
+  const remainingTime = pomodoroState.timer.remainingTime ?? totalTime;
 
   const { time, label } = convertMillisecondsToFriendlyTime(remainingTime);
 
@@ -54,7 +52,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = (props) => {
           variant={"body1"}
           color={"textSecondary"}
         >{`${label} remaining`}</Typography>
-        <TimerControls {...controlsProps} />
+        <TimerControls status={pomodoroState.timer.status} />
       </Box>
     </Box>
   );
