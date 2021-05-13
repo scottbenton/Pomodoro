@@ -21,12 +21,12 @@ export const PomodoroTimerProvider: React.FC = (props) => {
   const settings = pomodoroSettings.get();
 
   const audio = new Audio(process.env.PUBLIC_URL + "/notification.mp3");
-  // const [audioReady, setAudioReady] = useState<boolean>(false);
+  const audioReady = useRef<boolean>(false);
 
-  // const initializeAudio = () => {
-  //   audio.play();
-  //   setAudioReady(true);
-  // };
+  const initializeAudio = () => {
+    audio.play();
+    audioReady.current = true;
+  };
 
   const clearTimer = () => {
     if (timerInterval.current) {
@@ -36,9 +36,9 @@ export const PomodoroTimerProvider: React.FC = (props) => {
   };
 
   const handleCycleStart = () => {
-    // if (!audioReady) {
-    //   initializeAudio();
-    // }
+    if (!audioReady.current) {
+      initializeAudio();
+    }
     clearTimer();
 
     pomodoroState.timer.set({
