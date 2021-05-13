@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import { PomodoroTimerContext } from "./PomodoroTimerContext";
 import {
   usePomodoroSettingsState,
@@ -20,13 +20,18 @@ export const PomodoroTimerProvider: React.FC = (props) => {
 
   const settings = pomodoroSettings.get();
 
-  const audio = new Audio(process.env.PUBLIC_URL + "/notification.mp3");
+  const audio = useRef(new Audio(process.env.PUBLIC_URL + "/notification.mp3"));
   const audioReady = useRef<boolean>(false);
 
-  const initializeAudio = () => {
-    audio.play();
-    audioReady.current = true;
-  };
+  useEffect(() => {
+    const playAudio = () => {
+      audio.current.load();
+      document.removeEventListener("click", playAudio);
+      audioReady.current = true;
+    };
+
+    document.addEventListener("click", playAudio);
+  }, []);
 
   const clearTimer = () => {
     if (timerInterval.current) {
@@ -36,9 +41,6 @@ export const PomodoroTimerProvider: React.FC = (props) => {
   };
 
   const handleCycleStart = () => {
-    if (!audioReady.current) {
-      initializeAudio();
-    }
     clearTimer();
 
     pomodoroState.timer.set({
@@ -113,7 +115,7 @@ export const PomodoroTimerProvider: React.FC = (props) => {
     }, "batch-context");
 
     if (settings.playAudioOnCycleEnd) {
-      audio.play();
+      audio.current.play();
     }
 
     if (settings.autoStartCycles) {
