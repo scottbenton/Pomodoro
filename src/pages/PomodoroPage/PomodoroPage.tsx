@@ -1,24 +1,23 @@
-import { Box } from "@material-ui/core";
-import React, { useCallback } from "react";
+import { Box, Button } from "@material-ui/core";
+import React from "react";
 import { PomodoroProgress } from "./PomodoroProgress";
-import { Timer } from "components/Timer/Timer";
-import { usePomodoro } from "hooks/usePomodoro";
-import { useNotifications } from "components/providers/NotificationProvider";
-import { usePomodoroSettings } from "globalState/globalPomodoroSettings";
+import { Timer } from "pages/PomodoroPage/Timer/Timer";
+import { usePomodoroState } from "globalState/pomodoroState";
+import {
+  usePomodoroSettingsState,
+  CYCLES,
+} from "globalState/globalPomodoroSettings";
+import { usePomodoroTimer } from "components/providers/PomodoroTimerProvider";
+
 import { PageProps } from "../routes";
 
 export const PomodoroPage: React.FC<PageProps> = (props) => {
-  const { notify } = useNotifications();
-  const pomodoroSettings = usePomodoroSettings();
-  const { longBreaksEnabled, cyclesBeforeLongBreak } = pomodoroSettings.get();
+  const settings = usePomodoroSettingsState().get();
+  const { completedCycles } = usePomodoroState().get();
 
-  const { state, finishCycle } = usePomodoro();
+  const { enabled, cyclesBeforeLongBreak } = settings[CYCLES.LONG_BREAK];
 
-  const handleCycleEnd = useCallback(() => {
-    notify("Cycle Completed", "Pomodoro Cycle is Complete");
-
-    finishCycle();
-  }, [finishCycle, notify]);
+  const { reset } = usePomodoroTimer();
 
   return (
     <Box
@@ -28,13 +27,16 @@ export const PomodoroPage: React.FC<PageProps> = (props) => {
       alignItems={"center"}
       flexGrow={1}
     >
-      <Timer pomodoroState={state} timerFinishCallback={handleCycleEnd} />
-      {longBreaksEnabled && (
+      <Timer />
+      {enabled && (
         <PomodoroProgress
-          currentSessionNumber={state.count}
+          currentSessionNumber={completedCycles}
           sessionsBeforeLongBreak={cyclesBeforeLongBreak}
         />
       )}
+      <Button color={"primary"} onClick={() => reset()}>
+        Reset Timer
+      </Button>
     </Box>
   );
 };

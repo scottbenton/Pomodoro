@@ -14,20 +14,25 @@ export const ProfilePage: React.FC<PageProps> = (props) => {
   const user = useUser();
 
   return (
-    <FormSection title={"Authentication"}>
-      {user ? (
-        <>
-          <Box display={"flex"} alignItems={"center"}>
-            <UserAvatar />
-            <Typography className={classes.profileText}>
-              You are logged in as {user.displayName}.
-            </Typography>
-          </Box>
-          <LogoutButton variant={"contained"} color={"primary"} />
-        </>
-      ) : (
-        <LoginButton variant={"contained"} color={"primary"} />
-      )}
-    </FormSection>
+    <>
+      <FormSection title={"Authentication"}>
+        {user ? (
+          <>
+            <Box display={"flex"} alignItems={"center"}>
+              <UserAvatar />
+              <Typography className={classes.profileText}>
+                You are logged in as {user.displayName}.
+              </Typography>
+            </Box>
+            <LogoutButton variant={"contained"} color={"primary"} />
+          </>
+        ) : (
+          <LoginButton variant={"contained"} color={"primary"} />
+        )}
+      </FormSection>
+      <FormSection title={"Version"}>
+        <Typography>{process.env.REACT_APP_VERSION}</Typography>
+      </FormSection>
+    </>
   );
 };

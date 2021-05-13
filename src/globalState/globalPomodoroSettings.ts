@@ -1,24 +1,46 @@
 import { createState, useState } from "@hookstate/core";
 import { Persistence } from "@hookstate/persistence";
 
+export enum CYCLES {
+  WORK = "work",
+  BREAK = "break",
+  LONG_BREAK = "long-break",
+}
+
 export interface IPomodoroSettings {
-  workLengthInMinutes: number;
-  breakLengthInMinutes: number;
-  longBreakLengthInMinutes: number;
-  cyclesBeforeLongBreak: number;
-  longBreaksEnabled: boolean;
+  playAudioOnCycleEnd: boolean;
+  keepScreenOnDuringCycles: boolean;
   autoStartCycles: boolean;
+  [CYCLES.WORK]: {
+    length: number;
+  };
+  [CYCLES.BREAK]: {
+    length: number;
+  };
+  [CYCLES.LONG_BREAK]: {
+    enabled: boolean;
+    length: number;
+    cyclesBeforeLongBreak: number;
+  };
 }
 
 const pomodoroSettingsState = createState<IPomodoroSettings>({
-  workLengthInMinutes: 25,
-  breakLengthInMinutes: 5,
-  longBreakLengthInMinutes: 15,
-  cyclesBeforeLongBreak: 4,
-  longBreaksEnabled: true,
+  playAudioOnCycleEnd: true,
+  keepScreenOnDuringCycles: false,
   autoStartCycles: true,
+  [CYCLES.WORK]: {
+    length: 25,
+  },
+  [CYCLES.BREAK]: {
+    length: 5,
+  },
+  [CYCLES.LONG_BREAK]: {
+    length: 15,
+    enabled: true,
+    cyclesBeforeLongBreak: 4,
+  },
 });
 
-pomodoroSettingsState.attach(Persistence("pomodoro-settings-key"));
+pomodoroSettingsState.attach(Persistence("pomodoro-settings-key-v2"));
 
-export const usePomodoroSettings = () => useState(pomodoroSettingsState);
+export const usePomodoroSettingsState = () => useState(pomodoroSettingsState);
