@@ -1,6 +1,6 @@
 {
   "name": "pomodorro",
-  "version": "0.2.0-beta-1",
+  "version": "2.0.1",
   "homepage": ".",
   "private": true,
   "dependencies": {
