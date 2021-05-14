@@ -6,7 +6,7 @@ import reportWebVitals from "./reportWebVitals";
 import { register } from "./serviceWorkerRegistration";
 import { init } from "utils/firebase";
 
-import "typeface-nunito";
+import "typeface-inter";
 
 init();
 

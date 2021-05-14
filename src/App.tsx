@@ -22,7 +22,7 @@ function App() {
       <Switch>
         {Object.values(routes).map((route, index) => (
           <Route exact key={index} path={route.url}>
-            <Contents config={route} />
+            <Contents config={route} isMobile={isMobile} />
           </Route>
         ))}
       </Switch>

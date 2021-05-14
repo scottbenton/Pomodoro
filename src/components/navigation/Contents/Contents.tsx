@@ -10,33 +10,50 @@ import ThemeIcon from "@material-ui/icons/FormatPaintRounded";
 
 interface ContentsProps {
   config: RouteConfig;
+  isMobile: boolean;
 }
 
 export const Contents: React.FC<ContentsProps> = (props) => {
-  const { config } = props;
+  const { config, isMobile } = props;
   const classes = useStyles();
   const { title, settingsComponent, component } = config;
 
-  return (
-    <Box display={"flex"} flexDirection={"column"} flexGrow={1} paddingTop={2}>
-      <div className={classes.header}>
-        <Typography variant={"h6"}>{title ?? ""}</Typography>
-        <div>
-          {settingsComponent && (
-            <DrawerToggle
-              title={title + " Settings"}
-              icon={<SettingsIcon />}
-              drawerContent={settingsComponent}
-            />
-          )}
+  const Header = () => (
+    <div className={clsx(classes.header, isMobile && classes.headerMobile)}>
+      <Typography variant={isMobile ? "h6" : "h5"}>{title ?? ""}</Typography>
+      <div>
+        {settingsComponent && (
           <DrawerToggle
-            title={"Change your Theme"}
-            icon={<ThemeIcon />}
-            drawerContent={<ThemeChange />}
+            title={title + " Settings"}
+            icon={<SettingsIcon />}
+            drawerContent={settingsComponent}
           />
-        </div>
+        )}
+        <DrawerToggle
+          title={"Change your Theme"}
+          icon={<ThemeIcon />}
+          drawerContent={<ThemeChange />}
+        />
       </div>
-      <Paper className={clsx(classes.contents, classes.paper)}>
+    </div>
+  );
+
+  return (
+    <Box
+      display={"flex"}
+      flexDirection={"column"}
+      flexGrow={1}
+      overflow={"auto"}
+    >
+      {isMobile ? <Header /> : null}
+      <Paper
+        className={clsx(
+          classes.contents,
+          isMobile ? classes.paperMobile : classes.paperDesktop
+        )}
+      >
+        {!isMobile ? <Header /> : null}
+
         {React.createElement(component)}
       </Paper>
     </Box>

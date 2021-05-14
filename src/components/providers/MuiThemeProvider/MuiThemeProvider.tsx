@@ -10,7 +10,7 @@ export const MuiThemeProvider: React.FC = (props) => {
 
   const theme = createMuiTheme({
     typography: {
-      fontFamily: ["nunito", "Arial", "sans-serif"].join(","),
+      fontFamily: ["Inter", "Arial", "sans-serif"].join(","),
     },
     palette: {
       type: themeTypes[type].type as "light" | "dark",

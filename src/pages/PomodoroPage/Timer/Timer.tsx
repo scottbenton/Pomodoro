@@ -22,12 +22,7 @@ export interface TimerProps {}
 export const Timer: React.FC<TimerProps> = () => {
   const pomodoroState = usePomodoroState();
   return (
-    <Box
-      display={"flex"}
-      flexDirection={"column"}
-      alignItems={"center"}
-      marginTop={2}
-    >
+    <Box display={"flex"} flexDirection={"column"} alignItems={"center"}>
       <Typography variant={"h4"} component={"h1"} gutterBottom>
         {getTitleFromCycleType(pomodoroState.currentCycleType.get())}
       </Typography>
