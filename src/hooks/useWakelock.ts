@@ -1,9 +1,10 @@
-import { usePomodoroSettingsState } from "globalState/globalPomodoroSettings";
 import { useEffect } from "react";
+import { usePomodoroSettings } from "store/pomodoro-settings.store";
 
 export function useWakelock() {
-  const { keepScreenOnDuringCycles } = usePomodoroSettingsState();
-  const wakeLocksEnabled = keepScreenOnDuringCycles.get();
+  const keepScreenOnDuringCycles = usePomodoroSettings(
+    (store) => store.keepScreenOnDuringCycles
+  );
   const wakeLocksSupported = "wakeLock" in navigator;
 
   useEffect(() => {
@@ -11,21 +12,21 @@ export function useWakelock() {
     const handleVisibilityChange = async () => {
       try {
         console.debug("Requesting wakeLock...");
-        const wakeLock = await navigator.wakeLock.request("screen");
+        const wakeLock = await (navigator as any).wakeLock.request("screen");
         wakeLock.addEventListener("release", () => {
           console.debug("Wake Lock Released:", wakeLock.released);
         });
-      } catch (err) {
-        console.error(`${err.name}, ${err.message}`);
+      } catch (err: any) {
+        console.error(`${err?.name}, ${err?.message}`);
       }
     };
 
-    if (wakeLocksEnabled && wakeLocksSupported) {
+    if (keepScreenOnDuringCycles && wakeLocksSupported) {
       document.addEventListener("visibilitychange", handleVisibilityChange);
     }
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [wakeLocksEnabled, wakeLocksSupported]);
+  }, [keepScreenOnDuringCycles, wakeLocksSupported]);
 }

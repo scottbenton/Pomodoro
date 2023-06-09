@@ -1,23 +1,19 @@
-import { Box, IconButton } from "@material-ui/core";
-import React from "react";
-import { TIMER_STATUSES } from "globalState/pomodoroState";
-import { usePomodoroTimer } from "components/providers/PomodoroTimerProvider";
-
-import StartIcon from "@material-ui/icons/PlayArrowRounded";
-import PauseIcon from "@material-ui/icons/PauseRounded";
-import ResetIcon from "@material-ui/icons/ReplayRounded";
+import { Box, IconButton } from "@mui/material";
+import StartIcon from "@mui/icons-material/PlayArrowRounded";
+import PauseIcon from "@mui/icons-material/PauseRounded";
+import ResetIcon from "@mui/icons-material/ReplayRounded";
+import { TIMER_STATUSES } from "store/pomodoro.store";
+import { usePomodoroTimer } from "providers/PomodoroTimerProvider";
 
 export interface TimerControlsProps {
   status: TIMER_STATUSES;
 }
 
-export const TimerControls: React.FC<TimerControlsProps> = (props) => {
+export function TimerControls(props: TimerControlsProps) {
   const { status } = props;
-  const {
-    handleCycleStart,
-    handleCyclePause,
-    handleCycleRestart,
-  } = usePomodoroTimer();
+  const { handleCycleStart, handleCyclePause, handleCycleRestart } =
+    usePomodoroTimer();
+
   return (
     <Box marginTop={1}>
       {status === TIMER_STATUSES.READY || status === TIMER_STATUSES.PAUSED ? (
@@ -38,4 +34,4 @@ export const TimerControls: React.FC<TimerControlsProps> = (props) => {
       ) : null}
     </Box>
   );
-};
+}

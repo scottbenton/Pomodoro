@@ -1,8 +1,7 @@
-import { Box, Typography, Button } from "@material-ui/core";
-import React from "react";
-import { CYCLES } from "globalState/globalPomodoroSettings";
-import { usePomodoroState } from "globalState/pomodoroState";
+import { Box, Typography } from "@mui/material";
 import { TimerDisplay } from "./TimerDisplay";
+import { usePomodoro } from "store/pomodoro.store";
+import { CYCLES } from "store/pomodoro-settings.store";
 
 const getTitleFromCycleType = (type: CYCLES) => {
   switch (type) {
@@ -17,16 +16,14 @@ const getTitleFromCycleType = (type: CYCLES) => {
   }
 };
 
-export interface TimerProps {}
-
-export const Timer: React.FC<TimerProps> = () => {
-  const pomodoroState = usePomodoroState();
+export function Timer() {
+  const currentCycleType = usePomodoro((store) => store.currentCycleType);
   return (
     <Box display={"flex"} flexDirection={"column"} alignItems={"center"}>
       <Typography variant={"h4"} component={"h1"} gutterBottom>
-        {getTitleFromCycleType(pomodoroState.currentCycleType.get())}
+        {getTitleFromCycleType(currentCycleType)}
       </Typography>
       <TimerDisplay />
     </Box>
   );
-};
+}

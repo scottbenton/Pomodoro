@@ -1,34 +1,62 @@
-import { Box } from "@material-ui/core";
+import { PomodoroPage } from "pages/PomodoroPage";
+import { Box, Container, Paper } from "@mui/material";
+import { Header } from "components/Header/Header";
 import { useWakelock } from "hooks/useWakelock";
-import { Switch, Route } from "react-router-dom";
-import { routes } from "pages/routes";
-import { useIsMobile } from "hooks/useIsMobile";
-import { useStyles } from "./styles";
-import { Contents, NavRail, BottomNav } from "components/navigation";
+import { useThemeStore } from "store/theme.store";
+import { THEME_TYPES } from "providers/MuiThemeProvider/themes";
 
-function App() {
-  const classes = useStyles();
-
+export function App() {
   useWakelock();
-  const isMobile = useIsMobile();
+
+  const isBlackTheme = useThemeStore(
+    (store) => store.type === THEME_TYPES.BLACK
+  );
 
   return (
     <Box
       display={"flex"}
       height={"100vh"}
-      className={isMobile ? classes.rootMobile : classes.rootDesktop}
+      bgcolor={(theme) =>
+        isBlackTheme
+          ? theme.palette.background.default
+          : theme.palette.primary.dark
+      }
     >
-      {!isMobile && <NavRail />}
-      <Switch>
-        {Object.values(routes).map((route, index) => (
-          <Route exact key={index} path={route.url}>
-            <Contents config={route} isMobile={isMobile} />
-          </Route>
-        ))}
-      </Switch>
-      {isMobile && <BottomNav />}
+      <Container
+        maxWidth={"lg"}
+        sx={(theme) => ({
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          [theme.breakpoints.down("sm")]: {
+            px: 0,
+          },
+        })}
+      >
+        <Header />
+        <Paper
+          sx={(theme) => ({
+            flexGrow: 1,
+            display: "flex",
+            backgroundColor:
+              theme.palette.mode === "light"
+                ? theme.palette.background.paper
+                : theme.palette.background.default,
+
+            borderTopLeftRadius: 32,
+            borderTopRightRadius: 32,
+            p: 4,
+
+            [theme.breakpoints.down("sm")]: {
+              borderTopLeftRadius: 16,
+              borderTopRightRadius: 16,
+              p: 2,
+            },
+          })}
+        >
+          <PomodoroPage />
+        </Paper>
+      </Container>
     </Box>
   );
 }
-
-export default App;
