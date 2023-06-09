@@ -1,15 +1,9 @@
-import React from "react";
-import { InputAdornment, TextField } from "@material-ui/core";
+import { InputAdornment, TextField } from "@mui/material";
 import { SettingsSwitch, FormSection } from "components/FormSection";
-import {
-  usePomodoroSettingsState,
-  CYCLES,
-} from "globalState/globalPomodoroSettings";
+import { CYCLES, usePomodoroSettings } from "store/pomodoro-settings.store";
 
-export interface PomodoroSettingsProps {}
-
-export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
-  const settings = usePomodoroSettingsState();
+export function PomodoroSettings() {
+  const settings = usePomodoroSettings();
 
   const parsePositiveInteger = (rawString: string) => {
     const intVal = parseInt(rawString);
@@ -31,38 +25,38 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
         <>
           <SettingsSwitch
             label={"Audio Reminder Enabled"}
-            checked={settings.playAudioOnCycleEnd.get()}
-            handleToggle={settings.playAudioOnCycleEnd.set}
+            checked={settings.playAudioOnCycleEnd}
+            handleToggle={settings.togglePlayAudioOnCycleEnd}
           />
           {"wakeLock" in navigator && (
             <SettingsSwitch
               label={"Keep Screen On"}
-              checked={settings.keepScreenOnDuringCycles.get()}
-              handleToggle={settings.keepScreenOnDuringCycles.set}
+              checked={settings.keepScreenOnDuringCycles}
+              handleToggle={settings.toggleKeepScreenOnDuringCycles}
             />
           )}
           <SettingsSwitch
             label={"Auto-Start Cycles"}
-            checked={settings.autoStartCycles.get()}
-            handleToggle={settings.autoStartCycles.set}
+            checked={settings.autoStartCycles}
+            handleToggle={settings.toggleAutoStartCycles}
           />
           <SettingsSwitch
             label={"Long Breaks"}
-            checked={settings[CYCLES.LONG_BREAK].enabled.get()}
-            handleToggle={settings[CYCLES.LONG_BREAK].enabled.set}
+            checked={settings[CYCLES.LONG_BREAK].enabled}
+            handleToggle={settings.setLongBreakEnabled}
           />
           <TextField
             label={"Cycles Until Long Break"}
             type={"tel"}
             fullWidth
             variant={"filled"}
-            value={settings[CYCLES.LONG_BREAK].cyclesBeforeLongBreak.get()}
+            value={settings[CYCLES.LONG_BREAK].cyclesBeforeLongBreak}
             onChange={(evt) =>
-              settings[CYCLES.LONG_BREAK].cyclesBeforeLongBreak.set(
+              settings.setCyclesBeforeLongBreak(
                 parsePositiveInteger(evt.target.value)
               )
             }
-            disabled={!settings[CYCLES.LONG_BREAK].enabled.get()}
+            disabled={!settings[CYCLES.LONG_BREAK].enabled}
           />
         </>
       </FormSection>
@@ -71,9 +65,10 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
           <TextField
             label={"Work Length"}
             type={"tel"}
-            value={settings[CYCLES.WORK].length.get()}
+            value={settings[CYCLES.WORK].length}
             onChange={(evt) =>
-              settings[CYCLES.WORK].length.set(
+              settings.setCycleLength(
+                CYCLES.WORK,
                 parsePositiveInteger(evt.target.value)
               )
             }
@@ -88,9 +83,10 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
           <TextField
             label={"Break Length"}
             type={"tel"}
-            value={settings[CYCLES.BREAK].length.get()}
+            value={settings[CYCLES.BREAK].length}
             onChange={(evt) =>
-              settings[CYCLES.BREAK].length.set(
+              settings.setCycleLength(
+                CYCLES.BREAK,
                 parsePositiveInteger(evt.target.value)
               )
             }
@@ -103,13 +99,14 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
             }}
           />
           <TextField
-            disabled={!settings[CYCLES.LONG_BREAK].enabled.get()}
+            disabled={!settings[CYCLES.LONG_BREAK].enabled}
             label={"Long Break Length"}
             fullWidth
             type={"tel"}
-            value={settings[CYCLES.LONG_BREAK].length.get()}
+            value={settings[CYCLES.LONG_BREAK].length}
             onChange={(evt) =>
-              settings[CYCLES.LONG_BREAK].length.set(
+              settings.setCycleLength(
+                CYCLES.LONG_BREAK,
                 parsePositiveInteger(evt.target.value)
               )
             }
@@ -124,4 +121,4 @@ export const PomodoroSettings: React.FC<PomodoroSettingsProps> = (props) => {
       </FormSection>
     </>
   );
-};
+}

@@ -1,37 +1,15 @@
-import { Typography, Box } from "@material-ui/core";
-import React from "react";
-import { useThemeSettings } from "../../globalState/globalThemeState";
+import { Typography, Box } from "@mui/material";
+import { ThemeBox } from "./ThemeBox";
+import { useThemeStore } from "store/theme.store";
 import {
   THEME_COLORS,
-  themeColors,
   THEME_TYPES,
+  themeColors,
   themeTypes,
-} from "../providers/MuiThemeProvider/themes";
-import { ThemeBox } from "./ThemeBox";
+} from "providers/MuiThemeProvider/themes";
 
-export interface ThemeChangeProps {}
-
-export const ThemeChange: React.FC<ThemeChangeProps> = (props) => {
-  const themeSettings = useThemeSettings();
-
-  const selectedType = themeSettings.get().type;
-  const selectedColor = themeSettings.get().color;
-
-  const updateType = (newType: THEME_TYPES) => {
-    themeSettings.set((prevSettings) => {
-      let newSettings = { ...prevSettings };
-      newSettings.type = newType;
-      return newSettings;
-    });
-  };
-
-  const updateColor = (newColor: THEME_COLORS) => {
-    themeSettings.set((prevSettings) => {
-      let newSettings = { ...prevSettings };
-      newSettings.color = newColor;
-      return newSettings;
-    });
-  };
+export function ThemeChange() {
+  const { type, color, updateType, updateColor } = useThemeStore();
 
   return (
     <Box>
@@ -46,7 +24,7 @@ export const ThemeChange: React.FC<ThemeChangeProps> = (props) => {
               key={index}
               color={themeTypes[typedTypeKey].backgroundColor}
               name={themeTypes[typedTypeKey].name}
-              selected={typeKey === selectedType}
+              selected={typeKey === type}
               onClick={() => updateType(typedTypeKey)}
             />
           );
@@ -64,7 +42,7 @@ export const ThemeChange: React.FC<ThemeChangeProps> = (props) => {
                 key={index}
                 color={themeColors[typedColor].mainValue}
                 name={themeColors[typedColor].name}
-                selected={colorKey === selectedColor}
+                selected={colorKey === color}
                 onClick={() => updateColor(typedColor)}
               />
             );
@@ -73,4 +51,4 @@ export const ThemeChange: React.FC<ThemeChangeProps> = (props) => {
       </Box>
     </Box>
   );
-};
+}

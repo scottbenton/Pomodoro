@@ -1,14 +1,13 @@
-import React from "react";
-import CheckedIcon from "@material-ui/icons/CheckCircle";
-import UnCheckedIcon from "@material-ui/icons/RadioButtonUnchecked";
-import { Box, Typography } from "@material-ui/core";
+import CheckedIcon from "@mui/icons-material/CheckCircleRounded";
+import UnCheckedIcon from "@mui/icons-material/RadioButtonUncheckedRounded";
+import { Box, Typography } from "@mui/material";
 
 export interface PomodoroProgressProps {
   currentSessionNumber: number;
   sessionsBeforeLongBreak: number;
 }
 
-export const PomodoroProgress: React.FC<PomodoroProgressProps> = (props) => {
+export function PomodoroProgress(props: PomodoroProgressProps) {
   const { currentSessionNumber, sessionsBeforeLongBreak } = props;
 
   const array = Array.from(Array(sessionsBeforeLongBreak).keys());
@@ -29,4 +28,4 @@ export const PomodoroProgress: React.FC<PomodoroProgressProps> = (props) => {
       </Box>
     </Box>
   );
-};
+}

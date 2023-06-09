@@ -1,21 +1,21 @@
-import { Box, CircularProgress, Typography } from "@material-ui/core";
-import React from "react";
-import { convertMillisecondsToFriendlyTime } from "../../../utils/timeUtils";
-import { useStyles } from "./styles";
+import { Box, CircularProgress, Typography } from "@mui/material";
+import { convertMillisecondsToFriendlyTime } from "utils/timeUtils";
 import { TimerControls } from "./TimerControls";
-import { usePomodoroState } from "globalState/pomodoroState";
-import { usePomodoroSettingsState } from "globalState/globalPomodoroSettings";
+import { usePomodoro } from "store/pomodoro.store";
+import { usePomodoroSettings } from "store/pomodoro-settings.store";
 
-export interface TimerDisplayProps {}
+export function TimerDisplay() {
+  const settings = usePomodoroSettings();
+  const { remainingTimerTime, status, currentCycleType } = usePomodoro(
+    (state) => ({
+      remainingTimerTime: state.timer.remainingTime,
+      status: state.timer.status,
+      currentCycleType: state.currentCycleType,
+    })
+  );
 
-export const TimerDisplay: React.FC<TimerDisplayProps> = (props) => {
-  const settings = usePomodoroSettingsState().get();
-  const pomodoroState = usePomodoroState().get();
-
-  const classes = useStyles();
-
-  const totalTime = settings[pomodoroState.currentCycleType].length * 1000 * 60;
-  const remainingTime = pomodoroState.timer.remainingTime ?? totalTime;
+  const totalTime = settings[currentCycleType].length * 1000 * 60;
+  const remainingTime = remainingTimerTime ?? totalTime;
 
   const { time, label } = convertMillisecondsToFriendlyTime(remainingTime);
 
@@ -26,14 +26,20 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = (props) => {
         value={100}
         size={300}
         thickness={1.5}
-        className={classes.progressBackground}
+        sx={(theme) => ({
+          color: theme.palette.grey[500],
+          opacity: 0.25,
+        })}
       />
       <CircularProgress
         variant={"determinate"}
         value={(remainingTime / totalTime) * 100}
         size={300}
         thickness={1.5}
-        className={classes.progressForeground}
+        sx={{
+          top: 0,
+          position: "absolute",
+        }}
       />
       <Box
         position={"absolute"}
@@ -52,8 +58,8 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = (props) => {
           variant={"body1"}
           color={"textSecondary"}
         >{`${label} remaining`}</Typography>
-        <TimerControls status={pomodoroState.timer.status} />
+        <TimerControls status={status} />
       </Box>
     </Box>
   );
-};
+}

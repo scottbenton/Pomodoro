@@ -1,22 +1,18 @@
-import { Box, Button } from "@material-ui/core";
-import React from "react";
+import { Box, Button } from "@mui/material";
 import { PomodoroProgress } from "./PomodoroProgress";
 import { Timer } from "pages/PomodoroPage/Timer/Timer";
-import { usePomodoroState } from "globalState/pomodoroState";
-import {
-  usePomodoroSettingsState,
-  CYCLES,
-} from "globalState/globalPomodoroSettings";
-import { usePomodoroTimer } from "components/providers/PomodoroTimerProvider";
+import { usePomodoroTimer } from "providers/PomodoroTimerProvider";
+import { CYCLES, usePomodoroSettings } from "store/pomodoro-settings.store";
+import { usePomodoro } from "store/pomodoro.store";
 
-import { PageProps } from "../routes";
-
-export const PomodoroPage: React.FC<PageProps> = (props) => {
-  const settings = usePomodoroSettingsState().get();
-  const { completedCycles } = usePomodoroState().get();
-
-  const { enabled, cyclesBeforeLongBreak } = settings[CYCLES.LONG_BREAK];
-
+export function PomodoroPage() {
+  const { longBreakEnabled, cyclesBeforeLongBreak } = usePomodoroSettings(
+    (store) => ({
+      longBreakEnabled: store[CYCLES.LONG_BREAK].enabled,
+      cyclesBeforeLongBreak: store[CYCLES.LONG_BREAK].cyclesBeforeLongBreak,
+    })
+  );
+  const completedCycles = usePomodoro((store) => store.completedCycles);
   const { reset } = usePomodoroTimer();
 
   return (
@@ -28,7 +24,7 @@ export const PomodoroPage: React.FC<PageProps> = (props) => {
       flexGrow={1}
     >
       <Timer />
-      {enabled && (
+      {longBreakEnabled && (
         <PomodoroProgress
           currentSessionNumber={completedCycles}
           sessionsBeforeLongBreak={cyclesBeforeLongBreak}
@@ -39,4 +35,4 @@ export const PomodoroPage: React.FC<PageProps> = (props) => {
       </Button>
     </Box>
   );
-};
+}
